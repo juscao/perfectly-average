@@ -4,13 +4,17 @@
   box-sizing: inherit;
 }
 
+button {
+  margin-bottom: 4rem;
+}
+
 #table-container {
   display: flex;
   justify-content: flex-start;
   margin: auto;
   max-height: 640px;
   max-width: calc(100% - 4rem);
-  outline: 2px solid black;
+  outline: 2px solid #000000;
   overflow-x: auto;
   scrollbar-width: thin;
   width: max-content;
@@ -24,12 +28,20 @@
 }
 
 #table-container thead th {
-  background: #121212;
-  color: #ffffff;
   position: -webkit-sticky;
   position: sticky;
-  top: 0;
   z-index: 1;
+}
+
+#table-container thead .headings th {
+  color: #ffffff;
+  background: #121212;
+  top: 0;
+}
+
+#table-container thead .averages th {
+  background-color: lightgray;
+  top: 18px;
 }
 
 #table-container thead th.double-pinned {
@@ -43,48 +55,49 @@
   text-overflow: ellipsis;
 }
 
-.rank {
-  text-align: center;
-  width: 50px;
-  min-width: 50px;
+.pinned:first-of-type {
+  min-width: 66px;
+  padding-left: 16px;
+  text-align: left;
+  width: 66px;
 }
 
 .name {
+  min-width: 200px;
   text-align: left;
   width: 200px;
-  min-width: 200px;
 }
 
 .team {
+  border-right: 2px solid #000000;
+  min-width: 50px;
   text-align: left;
   width: 50px;
-  min-width: 50px;
 }
 
 .stat {
-  width: 50px;
   min-width: 50px;
-}
-
-.stat.string {
   text-align: right;
+  width: 50px;
 }
 
-.stat.number {
-  text-align: center;
+.stat:last-of-type {
+  min-width: 66px;
+  padding-right: 16px;
+  width: 66px;
 }
 
 th.pinned:first-of-type {
   left: 0;
   position: -webkit-sticky;
   position: sticky;
-  width: 50px;
+  width: 66px;
   z-index: 2;
 }
 
 th.pinned:nth-of-type(2) {
   background-color: #ffffff;
-  left: 50px;
+  left: 66px;
   position: -webkit-sticky;
   position: sticky;
   width: 200px;
@@ -93,7 +106,7 @@ th.pinned:nth-of-type(2) {
 
 th.pinned:nth-of-type(3) {
   background-color: #ffffff;
-  left: 250px;
+  left: 266px;
   position: -webkit-sticky;
   position: sticky;
   width: 50px;
@@ -109,14 +122,18 @@ tbody th.pinned:first-of-type {
 
 tbody th.pinned:nth-of-type(2) {
   background-color: #ffffff;
-  left: 50px;
+  left: 66px;
   position: sticky;
   z-index: 1;
 }
 
 tbody th.pinned:nth-of-type(3) {
   background-color: #ffffff;
-  left: 250px;
+  left: 266px;
   position: sticky;
   z-index: 1;
+}
+
+tbody tr * {
+  outline: 1px solid rgba(0, 0, 0, 0.1);
 }

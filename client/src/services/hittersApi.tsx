@@ -7,7 +7,6 @@ export async function fetchQualifiedHitters(season: number) {
     }
     const data = await response.json();
     if (data) {
-      console.log(data);
       return data.stats[0].splits;
     }
   } catch (error) {
