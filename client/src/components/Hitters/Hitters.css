@@ -56,81 +56,75 @@ button {
 }
 
 .pinned:first-of-type {
-  min-width: 66px;
-  padding-left: 16px;
+  min-width: 54px;
   text-align: left;
-  width: 66px;
+  width: 54px;
+}
+
+.pinned {
+  padding-left: 4px;
+  text-align: left;
 }
 
 .name {
-  min-width: 200px;
-  text-align: left;
-  width: 200px;
+  min-width: 204px;
+  width: 204px;
+}
+
+.position {
+  min-width: 54px;
+  width: 54px;
 }
 
 .team {
   border-right: 2px solid #000000;
-  min-width: 50px;
-  text-align: left;
-  width: 50px;
+  min-width: 54px;
+  width: 54px;
 }
 
 .stat {
-  min-width: 50px;
+  min-width: 54px;
+  padding-right: 4px;
   text-align: right;
-  width: 50px;
+  width: 54px;
 }
 
-.stat:last-of-type {
-  min-width: 66px;
-  padding-right: 16px;
-  width: 66px;
-}
-
-th.pinned:first-of-type {
-  left: 0;
-  position: -webkit-sticky;
-  position: sticky;
-  width: 66px;
-  z-index: 2;
-}
-
-th.pinned:nth-of-type(2) {
-  background-color: #ffffff;
-  left: 66px;
-  position: -webkit-sticky;
-  position: sticky;
-  width: 200px;
-  z-index: 2;
-}
-
-th.pinned:nth-of-type(3) {
-  background-color: #ffffff;
-  left: 266px;
-  position: -webkit-sticky;
-  position: sticky;
-  width: 50px;
-  z-index: 2;
-}
-
+thead th.pinned:first-of-type,
 tbody th.pinned:first-of-type {
-  background-color: #ffffff;
   left: 0;
+  position: -webkit-sticky;
   position: sticky;
-  z-index: 1;
 }
 
+thead th.pinned:nth-of-type(2),
 tbody th.pinned:nth-of-type(2) {
   background-color: #ffffff;
-  left: 66px;
+  left: 54px;
+  position: -webkit-sticky;
   position: sticky;
-  z-index: 1;
 }
 
+thead th.pinned:nth-of-type(3),
 tbody th.pinned:nth-of-type(3) {
   background-color: #ffffff;
-  left: 266px;
+  left: 258px;
+  position: -webkit-sticky;
   position: sticky;
+}
+
+thead th.pinned:nth-of-type(4),
+tbody th.pinned:nth-of-type(4) {
+  background-color: #ffffff;
+  left: 312px;
+  position: -webkit-sticky;
+  position: sticky;
+}
+
+thead th.pinned {
+  z-index: 2;
+}
+
+tbody th.pinned {
   z-index: 1;
 }
 
