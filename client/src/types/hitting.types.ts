@@ -65,3 +65,33 @@ export type Hitter = {
     abbreviation: string;
   };
 };
+
+export type HitterAverages = {
+  avg: number;
+  obp: number;
+  slg: number;
+  ops: number;
+  runs: number;
+  hits: number;
+  doubles: number;
+  triples: number;
+  homeRuns: number;
+  rbi: number;
+  baseOnBalls: number;
+  strikeOuts: number;
+};
+
+export type HitterExtremes = {
+  avg: { lowest: number; highest: number };
+  obp: { lowest: number; highest: number };
+  slg: { lowest: number; highest: number };
+  ops: { lowest: number; highest: number };
+  runs: { lowest: number; highest: number };
+  hits: { lowest: number; highest: number };
+  doubles: { lowest: number; highest: number };
+  triples: { lowest: number; highest: number };
+  homeRuns: { lowest: number; highest: number };
+  rbi: { lowest: number; highest: number };
+  baseOnBalls: { lowest: number; highest: number };
+  strikeOuts: { lowest: number; highest: number };
+};

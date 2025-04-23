@@ -1,118 +1,22 @@
 import { useState, useEffect } from "react";
+import { HittersRow } from "./HittersRow";
 import { fetchQualifiedHitters } from "../../services/hittersApi";
 import {
   calculateHitterAverages,
   calculateHitterExtremes,
 } from "../../utils/hittersCalculations";
-import { Hitter } from "../../types/hitting.types";
-import { TeamNameAbbreviations, TeamColors } from "../../types/teams.types";
+import {
+  Hitter,
+  HitterAverages,
+  HitterExtremes,
+} from "../../types/hitting.types";
 import "./Hitters.css";
-
-type StatCellProps = {
-  hitter: Hitter;
-  statName: keyof Hitter["stat"];
-  average: string | number;
-  extreme: { lowest: string | number; highest: string | number };
-  isRate?: boolean;
-  isReversed?: boolean;
-  className: string;
-};
-
-const StatCell = ({
-  hitter,
-  statName,
-  average,
-  extreme,
-  isRate = false,
-  isReversed = false,
-  className,
-}: StatCellProps) => {
-  const getValue = () => {
-    if (isRate) {
-      return (
-        (100 * Number(hitter.stat[statName])) / hitter.stat.plateAppearances
-      );
-    }
-    return Number(hitter.stat[statName]);
-  };
-
-  const value = getValue();
-  const avg = Number(average);
-  const isAboveAverage = value > avg;
-
-  const opacity =
-    (value - avg) / (Number(extreme.highest) - Number(extreme.lowest));
-  const absoluteOpacity = Math.abs(opacity);
-
-  const backgroundColor = isReversed
-    ? isAboveAverage
-      ? `rgba(0, 0, 255, ${absoluteOpacity})`
-      : `rgba(255, 0, 0, ${absoluteOpacity})`
-    : isAboveAverage
-    ? `rgba(255, 0, 0, ${absoluteOpacity})`
-    : `rgba(0, 0, 255, ${absoluteOpacity})`;
-
-  const isBlueBackground = isReversed ? isAboveAverage : !isAboveAverage;
-
-  const textColor =
-    value === avg
-      ? "rgb(0, 0, 0)"
-      : isBlueBackground && absoluteOpacity > 0.5
-      ? "rgb(255, 255, 255)"
-      : "rgb(0, 0, 0)";
-
-  const normalized = Math.round(100 + ((value - avg) / avg) * 100);
-
-  return (
-    <td
-      className={`stat ${className}`}
-      style={{
-        backgroundColor: value === avg ? "#ffffff" : backgroundColor,
-        color: textColor,
-      }}
-    >
-      {normalized}
-    </td>
-  );
-};
 
 export default function Hitters() {
   const [fetching, setFetching] = useState(true);
   const [qualifiedHitters, setQualifiedHitters] = useState<Hitter[]>([]);
-  const [averages, setAverages] = useState<
-    | {
-        avg: string;
-        obp: string;
-        slg: string;
-        ops: string;
-        runs: number;
-        hits: number;
-        doubles: number;
-        triples: number;
-        homeRuns: number;
-        rbi: number;
-        baseOnBalls: number;
-        strikeOuts: number;
-      }
-    | undefined
-  >();
-  const [extremes, setExtremes] = useState<
-    | {
-        avg: { lowest: string; highest: string };
-        obp: { lowest: string; highest: string };
-        slg: { lowest: string; highest: string };
-        ops: { lowest: string; highest: string };
-        runs: { lowest: number; highest: number };
-        hits: { lowest: number; highest: number };
-        doubles: { lowest: number; highest: number };
-        triples: { lowest: number; highest: number };
-        homeRuns: { lowest: number; highest: number };
-        rbi: { lowest: number; highest: number };
-        baseOnBalls: { lowest: number; highest: number };
-        strikeOuts: { lowest: number; highest: number };
-      }
-    | undefined
-  >();
+  const [averages, setAverages] = useState<HitterAverages | undefined>();
+  const [extremes, setExtremes] = useState<HitterExtremes | undefined>();
 
   useEffect(() => {
     const getHitters = async () => {
@@ -134,22 +38,19 @@ export default function Hitters() {
 
   if (!fetching && averages && extremes)
     return (
-      <>
-        <button onClick={() => console.log(qualifiedHitters)}>
-          get hitters
-        </button>
-        <button>hello world</button>
-        <>
+      <div className="wrapper">
+        <h1>Qualified Hitters</h1>
+        <div className="description">
           <p>
             R, H, 2B, 3B, HR, RBI, BB, SO, SB, and CS averages are calculated
             per 100 plate appearances (e.g., on average, a qualified hitter will
-            have {averages.hits.toFixed(2)} hits per 100 PA).
+            have <strong>{averages.hits.toFixed(2)}</strong> hits per 100 PA).
           </p>
           <p>
             Red is good and blue is bad. For SO, lower is better. Higher is
             better for the rest.
           </p>
-        </>
+        </div>
         <div id="table-container">
           <table id="hitting-table">
             <thead>
@@ -166,44 +67,43 @@ export default function Hitters() {
                 <th scope="col" className="pinned double-pinned team">
                   Team
                 </th>
-                <th scope="col" className="pinned stat string avg">
+                <th scope="col" className="pinned stat avg">
                   AVG
                 </th>
-                <th scope="col" className="pinned stat string obp">
+                <th scope="col" className="pinned stat obp">
                   OBP
                 </th>
-                <th scope="col" className="pinned stat string slg">
+                <th scope="col" className="pinned stat slg">
                   SLG
                 </th>
-                <th scope="col" className="pinned stat string ops">
+                <th scope="col" className="pinned stat ops">
                   OPS
                 </th>
-                <th scope="col" className="pinned stat number r">
+                <th scope="col" className="pinned stat runs">
                   R
                 </th>
-                <th scope="col" className="pinned stat number h">
+                <th scope="col" className="pinned stat hits">
                   H
                 </th>
-                <th scope="col" className="pinned stat number 2b">
+                <th scope="col" className="pinned stat doubles">
                   2B
                 </th>
-                <th scope="col" className="pinned stat number 3b">
+                <th scope="col" className="pinned stat triples">
                   3B
                 </th>
-                <th scope="col" className="pinned stat number hr">
+                <th scope="col" className="pinned stat home-runs">
                   HR
                 </th>
-                <th scope="col" className="pinned stat number rbi">
+                <th scope="col" className="pinned stat rbi">
                   RBI
                 </th>
-                <th scope="col" className="pinned stat number bb">
+                <th scope="col" className="pinned stat base-on-balls">
                   BB
                 </th>
-                <th scope="col" className="pinned stat number so">
+                <th scope="col" className="pinned stat strikeouts">
                   SO
                 </th>
               </tr>
-
               <tr className="averages">
                 <th scope="col" className="pinned double-pinned rank"></th>
                 <th scope="col" className="pinned double-pinned name">
@@ -214,162 +114,56 @@ export default function Hitters() {
                   MLB
                 </th>
                 <th scope="col" className="pinned stat string avg">
-                  {averages.avg}
+                  {averages.avg.toFixed(3).replace(/^0\./, ".")}
                 </th>
                 <th scope="col" className="pinned stat string obp">
-                  {averages.obp}
+                  {averages.obp.toFixed(3).replace(/^0\./, ".")}
                 </th>
                 <th scope="col" className="pinned stat string slg">
-                  {averages.slg}
+                  {averages.slg.toFixed(3).replace(/^0\./, ".")}
                 </th>
                 <th scope="col" className="pinned stat string ops">
-                  {averages.ops}
+                  {averages.ops.toFixed(3).replace(/^0\./, ".")}
                 </th>
-                <th scope="col" className="pinned stat number r">
+                <th scope="col" className="pinned stat number runs">
                   {averages.runs.toFixed(2)}
                 </th>
-                <th scope="col" className="pinned stat number h">
+                <th scope="col" className="pinned stat number hits">
                   {averages.hits.toFixed(2)}
                 </th>
-                <th scope="col" className="pinned stat number 2b">
+                <th scope="col" className="pinned stat number doubles">
                   {averages.doubles.toFixed(2)}
                 </th>
-                <th scope="col" className="pinned stat number 3b">
+                <th scope="col" className="pinned stat number triples">
                   {averages.triples.toFixed(2)}
                 </th>
-                <th scope="col" className="pinned stat number hr">
+                <th scope="col" className="pinned stat number home-runs">
                   {averages.homeRuns.toFixed(2)}
                 </th>
                 <th scope="col" className="pinned stat number rbi">
                   {averages.rbi.toFixed(2)}
                 </th>
-                <th scope="col" className="pinned stat number bb">
+                <th scope="col" className="pinned stat number base-on-balls">
                   {averages.baseOnBalls.toFixed(2)}
                 </th>
-                <th scope="col" className="pinned stat number so">
+                <th scope="col" className="pinned stat number strikeouts">
                   {averages.strikeOuts.toFixed(2)}
                 </th>
               </tr>
             </thead>
             <tbody>
               {qualifiedHitters.map((hitter, i) => (
-                <tr key={hitter.player.id}>
-                  <th className="pinned rank">{i + 1}</th>
-                  <th className="pinned name">
-                    {hitter.player.lastName}, {hitter.player.firstName}
-                  </th>
-                  <th className="pinned position">
-                    {hitter.position.abbreviation}
-                  </th>
-                  <th
-                    className="pinned team"
-                    style={{
-                      backgroundColor: `${
-                        TeamColors[hitter.team.name].background
-                      }`,
-                      color: `${TeamColors[hitter.team.name].text}`,
-                    }}
-                  >
-                    {TeamNameAbbreviations[hitter.team.name]}
-                  </th>
-                  <StatCell
-                    hitter={hitter}
-                    statName="avg"
-                    average={averages.avg}
-                    extreme={extremes.avg}
-                    className="string avg"
-                  />
-                  <StatCell
-                    hitter={hitter}
-                    statName="obp"
-                    average={averages.obp}
-                    extreme={extremes.obp}
-                    className="string obp"
-                  />
-                  <StatCell
-                    hitter={hitter}
-                    statName="slg"
-                    average={averages.slg}
-                    extreme={extremes.slg}
-                    className="string slg"
-                  />
-                  <StatCell
-                    hitter={hitter}
-                    statName="ops"
-                    average={averages.ops}
-                    extreme={extremes.ops}
-                    className="string ops"
-                  />
-                  <StatCell
-                    hitter={hitter}
-                    statName="runs"
-                    average={averages.runs}
-                    extreme={extremes.runs}
-                    isRate={true}
-                    className="number r"
-                  />
-                  <StatCell
-                    hitter={hitter}
-                    statName="hits"
-                    average={averages.hits}
-                    extreme={extremes.hits}
-                    isRate={true}
-                    className="number h"
-                  />
-                  <StatCell
-                    hitter={hitter}
-                    statName="doubles"
-                    average={averages.doubles}
-                    extreme={extremes.doubles}
-                    isRate={true}
-                    className="number 2b"
-                  />
-                  <StatCell
-                    hitter={hitter}
-                    statName="triples"
-                    average={averages.triples}
-                    extreme={extremes.triples}
-                    isRate={true}
-                    className="number 3b"
-                  />
-                  <StatCell
-                    hitter={hitter}
-                    statName="homeRuns"
-                    average={averages.homeRuns}
-                    extreme={extremes.homeRuns}
-                    isRate={true}
-                    className="number hr"
-                  />
-                  <StatCell
-                    hitter={hitter}
-                    statName="rbi"
-                    average={averages.rbi}
-                    extreme={extremes.rbi}
-                    isRate={true}
-                    className="number rbi"
-                  />
-                  <StatCell
-                    hitter={hitter}
-                    statName="baseOnBalls"
-                    average={averages.baseOnBalls}
-                    extreme={extremes.baseOnBalls}
-                    isRate={true}
-                    className="number bb"
-                  />
-                  <StatCell
-                    hitter={hitter}
-                    statName="strikeOuts"
-                    average={averages.strikeOuts}
-                    extreme={extremes.strikeOuts}
-                    isRate={true}
-                    isReversed={true}
-                    className="number so"
-                  />
-                </tr>
+                <HittersRow
+                  hitter={hitter}
+                  averages={averages}
+                  extremes={extremes}
+                  key={hitter.player.id}
+                  i={i}
+                />
               ))}
             </tbody>
           </table>
         </div>
-      </>
+      </div>
     );
 }

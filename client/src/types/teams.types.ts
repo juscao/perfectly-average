@@ -209,7 +209,7 @@ export const TeamColors: Record<string, { background: string; text: string }> =
     },
     "San Francisco Giants": {
       background: "rgb(253, 90, 30)",
-      text: "rgb(255, 255, 255)",
+      text: "rgb(0, 0, 0)",
     },
     "St. Louis Browns": {
       background: "rgb(94, 56, 18)",
