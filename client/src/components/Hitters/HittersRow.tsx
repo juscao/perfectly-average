@@ -14,12 +14,13 @@ export function HittersRow({
   hitter,
   averages,
   extremes,
+  qualified,
   i,
 }: {
   hitter: Hitter;
   averages: HitterAverages;
   extremes: HitterExtremes;
-  key: number;
+  qualified: boolean;
   i: number;
 }) {
   const [normalizedStats, setNormalizedStats] = useState<HitterAverages>();
@@ -44,9 +45,19 @@ export function HittersRow({
       <tr>
         <th className="pinned rank">{i + 1}</th>
         <th className="pinned name">
-          {hitter.player.lastName}, {hitter.player.firstName}
+          {qualified
+            ? hitter.player.lastName.toUpperCase()
+            : hitter.player.lastName}
+          ,{" "}
+          {qualified
+            ? hitter.player.firstName.toUpperCase()
+            : hitter.player.firstName}
         </th>
-        <th className="pinned position">{hitter.position.abbreviation}</th>
+        <th className="pinned position">
+          {qualified
+            ? hitter.position.abbreviation
+            : hitter.position.abbreviation.toLowerCase()}
+        </th>
         <th
           className="pinned team"
           style={{
@@ -64,19 +75,19 @@ export function HittersRow({
               : normalizedStats.avg > 100
               ? {
                   backgroundColor: `rgba(255, 0, 0, ${
-                    2 * backgroundOpacities.avg
+                    1.5 * backgroundOpacities.avg
                   })`,
                 }
               : {
                   backgroundColor: `rgba(0, 0, 255, ${
-                    2 * backgroundOpacities.avg
+                    1.5 * backgroundOpacities.avg
                   })`,
                   color:
-                    2 * backgroundOpacities.avg > 0.6 ? "#ffffff" : "#000000",
+                    1.5 * backgroundOpacities.avg > 0.6 ? "#ffffff" : "#000000",
                 }
           }
         >
-          {normalizedStats.avg}
+          {Math.round(normalizedStats.avg)}
         </td>
         <td
           className="stat obp"
@@ -86,19 +97,19 @@ export function HittersRow({
               : normalizedStats.obp > 100
               ? {
                   backgroundColor: `rgba(255, 0, 0, ${
-                    2 * backgroundOpacities.obp
+                    1.5 * backgroundOpacities.obp
                   })`,
                 }
               : {
                   backgroundColor: `rgba(0, 0, 255, ${
-                    2 * backgroundOpacities.obp
+                    1.5 * backgroundOpacities.obp
                   })`,
                   color:
-                    2 * backgroundOpacities.obp > 0.6 ? "#ffffff" : "#000000",
+                    1.5 * backgroundOpacities.obp > 0.6 ? "#ffffff" : "#000000",
                 }
           }
         >
-          {normalizedStats.obp}
+          {Math.round(normalizedStats.obp)}
         </td>
         <td
           className="stat slg"
@@ -108,19 +119,19 @@ export function HittersRow({
               : normalizedStats.slg > 100
               ? {
                   backgroundColor: `rgba(255, 0, 0, ${
-                    2 * backgroundOpacities.slg
+                    1.5 * backgroundOpacities.slg
                   })`,
                 }
               : {
                   backgroundColor: `rgba(0, 0, 255, ${
-                    2 * backgroundOpacities.slg
+                    1.5 * backgroundOpacities.slg
                   })`,
                   color:
-                    2 * backgroundOpacities.slg > 0.6 ? "#ffffff" : "#000000",
+                    1.5 * backgroundOpacities.slg > 0.6 ? "#ffffff" : "#000000",
                 }
           }
         >
-          {normalizedStats.slg}
+          {Math.round(normalizedStats.slg)}
         </td>
         <td
           className="stat ops"
@@ -130,19 +141,19 @@ export function HittersRow({
               : normalizedStats.ops > 100
               ? {
                   backgroundColor: `rgba(255, 0, 0, ${
-                    2 * backgroundOpacities.ops
+                    1.5 * backgroundOpacities.ops
                   })`,
                 }
               : {
                   backgroundColor: `rgba(0, 0, 255, ${
-                    2 * backgroundOpacities.ops
+                    1.5 * backgroundOpacities.ops
                   })`,
                   color:
-                    2 * backgroundOpacities.ops > 0.6 ? "#ffffff" : "#000000",
+                    1.5 * backgroundOpacities.ops > 0.6 ? "#ffffff" : "#000000",
                 }
           }
         >
-          {normalizedStats.ops}
+          {Math.round(normalizedStats.ops)}
         </td>
         <td
           className="stat runs"
@@ -152,19 +163,21 @@ export function HittersRow({
               : normalizedStats.runs > 100
               ? {
                   backgroundColor: `rgba(255, 0, 0, ${
-                    2 * backgroundOpacities.runs
+                    1.5 * backgroundOpacities.runs
                   })`,
                 }
               : {
                   backgroundColor: `rgba(0, 0, 255, ${
-                    2 * backgroundOpacities.runs
+                    1.5 * backgroundOpacities.runs
                   })`,
                   color:
-                    2 * backgroundOpacities.runs > 0.6 ? "#ffffff" : "#000000",
+                    1.5 * backgroundOpacities.runs > 0.6
+                      ? "#ffffff"
+                      : "#000000",
                 }
           }
         >
-          {normalizedStats.runs}
+          {Math.round(normalizedStats.runs)}
         </td>
         <td
           className="stat hits"
@@ -174,19 +187,21 @@ export function HittersRow({
               : normalizedStats.hits > 100
               ? {
                   backgroundColor: `rgba(255, 0, 0, ${
-                    2 * backgroundOpacities.hits
+                    1.5 * backgroundOpacities.hits
                   })`,
                 }
               : {
                   backgroundColor: `rgba(0, 0, 255, ${
-                    2 * backgroundOpacities.hits
+                    1.5 * backgroundOpacities.hits
                   })`,
                   color:
-                    2 * backgroundOpacities.hits > 0.6 ? "#ffffff" : "#000000",
+                    1.5 * backgroundOpacities.hits > 0.6
+                      ? "#ffffff"
+                      : "#000000",
                 }
           }
         >
-          {normalizedStats.hits}
+          {Math.round(normalizedStats.hits)}
         </td>
         <td
           className="stat doubles"
@@ -196,21 +211,21 @@ export function HittersRow({
               : normalizedStats.doubles > 100
               ? {
                   backgroundColor: `rgba(255, 0, 0, ${
-                    2 * backgroundOpacities.doubles
+                    1.5 * backgroundOpacities.doubles
                   })`,
                 }
               : {
                   backgroundColor: `rgba(0, 0, 255, ${
-                    2 * backgroundOpacities.doubles
+                    1.5 * backgroundOpacities.doubles
                   })`,
                   color:
-                    2 * backgroundOpacities.doubles > 0.6
+                    1.5 * backgroundOpacities.doubles > 0.6
                       ? "#ffffff"
                       : "#000000",
                 }
           }
         >
-          {normalizedStats.doubles}
+          {Math.round(normalizedStats.doubles)}
         </td>
         <td
           className="stat triples"
@@ -220,21 +235,21 @@ export function HittersRow({
               : normalizedStats.triples > 100
               ? {
                   backgroundColor: `rgba(255, 0, 0, ${
-                    2 * backgroundOpacities.triples
+                    1.5 * backgroundOpacities.triples
                   })`,
                 }
               : {
                   backgroundColor: `rgba(0, 0, 255, ${
-                    2 * backgroundOpacities.triples
+                    1.5 * backgroundOpacities.triples
                   })`,
                   color:
-                    2 * backgroundOpacities.triples > 0.6
+                    1.5 * backgroundOpacities.triples > 0.6
                       ? "#ffffff"
                       : "#000000",
                 }
           }
         >
-          {normalizedStats.triples}
+          {Math.round(normalizedStats.triples)}
         </td>
         <td
           className="stat home-runs"
@@ -244,21 +259,21 @@ export function HittersRow({
               : normalizedStats.homeRuns > 100
               ? {
                   backgroundColor: `rgba(255, 0, 0, ${
-                    2 * backgroundOpacities.homeRuns
+                    1.5 * backgroundOpacities.homeRuns
                   })`,
                 }
               : {
                   backgroundColor: `rgba(0, 0, 255, ${
-                    2 * backgroundOpacities.homeRuns
+                    1.5 * backgroundOpacities.homeRuns
                   })`,
                   color:
-                    2 * backgroundOpacities.homeRuns > 0.6
+                    1.5 * backgroundOpacities.homeRuns > 0.6
                       ? "#ffffff"
                       : "#000000",
                 }
           }
         >
-          {normalizedStats.homeRuns}
+          {Math.round(normalizedStats.homeRuns)}
         </td>
         <td
           className="stat rbi"
@@ -268,19 +283,19 @@ export function HittersRow({
               : normalizedStats.rbi > 100
               ? {
                   backgroundColor: `rgba(255, 0, 0, ${
-                    2 * backgroundOpacities.rbi
+                    1.5 * backgroundOpacities.rbi
                   })`,
                 }
               : {
                   backgroundColor: `rgba(0, 0, 255, ${
-                    2 * backgroundOpacities.rbi
+                    1.5 * backgroundOpacities.rbi
                   })`,
                   color:
-                    2 * backgroundOpacities.rbi > 0.6 ? "#ffffff" : "#000000",
+                    1.5 * backgroundOpacities.rbi > 0.6 ? "#ffffff" : "#000000",
                 }
           }
         >
-          {normalizedStats.rbi}
+          {Math.round(normalizedStats.rbi)}
         </td>
         <td
           className="stat base-on-balls"
@@ -290,21 +305,21 @@ export function HittersRow({
               : normalizedStats.baseOnBalls > 100
               ? {
                   backgroundColor: `rgba(255, 0, 0, ${
-                    2 * backgroundOpacities.baseOnBalls
+                    1.5 * backgroundOpacities.baseOnBalls
                   })`,
                 }
               : {
                   backgroundColor: `rgba(0, 0, 255, ${
-                    2 * backgroundOpacities.baseOnBalls
+                    1.5 * backgroundOpacities.baseOnBalls
                   })`,
                   color:
-                    2 * backgroundOpacities.baseOnBalls > 0.6
+                    1.5 * backgroundOpacities.baseOnBalls > 0.6
                       ? "#ffffff"
                       : "#000000",
                 }
           }
         >
-          {normalizedStats.baseOnBalls}
+          {Math.round(normalizedStats.baseOnBalls)}
         </td>
         <td
           className="stat strikeouts"
@@ -314,21 +329,21 @@ export function HittersRow({
               : normalizedStats.strikeOuts > 100
               ? {
                   backgroundColor: `rgba(0, 0, 255, ${
-                    2 * backgroundOpacities.strikeOuts
+                    1.5 * backgroundOpacities.strikeOuts
                   })`,
                   color:
-                    2 * backgroundOpacities.strikeOuts > 0.6
+                    1.5 * backgroundOpacities.strikeOuts > 0.6
                       ? "#ffffff"
                       : "#000000",
                 }
               : {
                   backgroundColor: `rgba(255, 0, 0, ${
-                    2 * backgroundOpacities.strikeOuts
+                    1.5 * backgroundOpacities.strikeOuts
                   })`,
                 }
           }
         >
-          {normalizedStats.strikeOuts}
+          {Math.round(normalizedStats.strikeOuts)}
         </td>
       </tr>
     );

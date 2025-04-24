@@ -1,8 +1,9 @@
 body {
   box-sizing: border-box;
   font-family: "Ubuntu Mono", monospace;
-  padding: 0;
   margin: 0;
+  overflow-y: scroll;
+  padding: 0;
 }
 
 .wrapper {

@@ -10,11 +10,43 @@ h1 {
 }
 
 .description {
-  margin: 1rem auto;
+  margin: 0 auto;
+  ul {
+    padding: 0;
+  }
+  ul li {
+    margin: 0.5rem 0;
+  }
+}
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  justify-content: space-between;
+  div {
+    align-items: center;
+    display: flex;
+    margin-bottom: 0.5rem;
+    label {
+      font-weight: bold;
+      margin-right: 0.5rem;
+      width: 100px;
+    }
+    select {
+      background-color: rgba(0, 0, 0, 0.1);
+      border: none;
+      border-right: 4px solid transparent;
+      font-family: "Ubuntu Mono", monospace;
+      font-size: 1rem;
+      padding: 0.125rem 0.25rem;
+    }
+  }
 }
 
 h1,
-.description {
+.description,
+.filters {
   max-width: 640px;
   width: calc(100% - 2rem);
 }
@@ -22,10 +54,11 @@ h1,
 #table-container {
   display: flex;
   justify-content: flex-start;
-  margin: auto;
+  margin: 1.5rem auto 2rem;
   max-height: 640px;
   max-width: calc(100% - 2rem);
   outline: 2px solid #000000;
+  overflow-y: scroll;
   overflow-x: auto;
   scrollbar-width: thin;
   width: max-content;
@@ -77,8 +110,41 @@ h1,
   text-align: left;
 }
 
+.pinned > button {
+  align-items: center;
+  background-color: transparent;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  font-family: "Ubuntu Mono", monospace;
+  font-size: 1rem;
+  font-weight: bold;
+  justify-content: space-between;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  > img {
+    height: 1rem;
+    width: 1rem;
+  }
+}
+
+.pinned > button:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.pinned.name > button > span {
+  margin-right: auto;
+}
+
+.pinned:not(.name) > button > span {
+  margin-left: auto;
+}
+
 .name {
   min-width: 204px;
+  max-width: 204px;
   width: 204px;
 }
 
@@ -144,6 +210,15 @@ tbody tr * {
 }
 
 @media (max-width: 768px) {
+  .filters {
+    div {
+      align-items: flex-start;
+      flex-direction: column;
+      label {
+        margin-bottom: 0.25rem;
+      }
+    }
+  }
   thead th.pinned:first-of-type,
   tbody th.pinned:first-of-type,
   thead th.pinned:nth-of-type(2),
