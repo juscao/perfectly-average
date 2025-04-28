@@ -1,4 +1,4 @@
-import { Hitter } from "../types/hitting.types";
+import { AwardRecipient, Hitter } from "../types/hitting.types";
 
 export async function fetchQualifiedHitters(season: number) {
   try {
@@ -29,12 +29,69 @@ export async function fetchAllHitters(season: number) {
     const data = await response.json();
     if (data) {
       return data.stats[0].splits.filter(
-        (player: Hitter) =>
-          player.position.abbreviation !== "P" && player.stat.atBats > 0
+        (player: Hitter) => player.stat.atBats > 0
       );
     }
   } catch (error) {
     console.error("Error fetching all hitters:", error);
+    return null;
+  }
+}
+
+export async function fetchHitterAwards(season: number) {
+  try {
+    const awardNames = [
+      "ALROY",
+      "NLROY",
+      "ALMVP",
+      "NLMVP",
+      season !== 2020 && "ALAS",
+      season !== 2020 && "NLAS",
+      season > 1979 && "ALSS",
+      season > 1979 && "NLSS",
+      season > 2018 && "MLBAFIRST",
+      season > 2018 && "MLBSECOND",
+    ];
+    const fetchPromises = awardNames
+      .filter((award) => award!)
+      .map((award) =>
+        fetch(
+          `https://statsapi.mlb.com/api/v1/awards/${award}/recipients?season=${season}`
+        )
+      );
+
+    const responses = await Promise.all(fetchPromises);
+
+    if (responses.some((response) => !response.ok)) {
+      throw new Error(`HTTP error! One or more requests failed.`);
+    }
+
+    const jsonPromises = responses.map((response) => response.json());
+    const jsonResults = await Promise.all(jsonPromises);
+
+    const awardRecipients: { name: string; playerId: number }[] = [];
+
+    jsonResults.forEach((result) => {
+      const awardName = result.awards[0].id;
+      if (
+        result &&
+        result.awards &&
+        result.awards[0] &&
+        result.awards[0].player
+      ) {
+        result.awards.forEach((award: AwardRecipient) => {
+          if (award.player && award.player.id) {
+            awardRecipients.push({
+              name: awardName,
+              playerId: award.player.id,
+            });
+          }
+        });
+      }
+    });
+    return awardRecipients;
+  } catch (error) {
+    console.error("Error fetching hitter awards:", error);
     return null;
   }
 }

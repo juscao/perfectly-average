@@ -5,7 +5,6 @@
 }
 
 h1 {
-  text-align: center;
   margin: 0 auto;
 }
 
@@ -47,7 +46,7 @@ h1 {
 h1,
 .description,
 .filters {
-  max-width: 640px;
+  max-width: 960px;
   width: calc(100% - 2rem);
 }
 
@@ -56,12 +55,14 @@ h1,
   justify-content: flex-start;
   margin: 1.5rem auto 2rem;
   max-height: 640px;
-  max-width: calc(100% - 2rem);
+  max-width: 960px;
   outline: 2px solid #000000;
-  overflow-y: scroll;
-  overflow-x: auto;
+  overflow: scroll;
+  position: relative;
   scrollbar-width: thin;
-  width: max-content;
+  width: calc(100% - 2rem);
+  /* reduces slight shifting of pinned columns on horizontal scroll on desktop */
+  will-change: transform;
 }
 
 #table-container table {
@@ -142,10 +143,33 @@ h1,
   margin-left: auto;
 }
 
+th.name {
+  div {
+    align-items: center;
+    display: flex;
+    span:first-of-type {
+      margin-right: auto;
+      max-width: 304px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .awards {
+      margin-left: 1rem;
+      padding-right: 4px;
+      img {
+        height: 16px;
+        margin-left: 2px;
+        width: 16px;
+      }
+    }
+  }
+}
+
 .name {
-  min-width: 204px;
-  max-width: 204px;
-  width: 204px;
+  min-width: 254px;
+  max-width: 254px;
+  width: 254px;
 }
 
 .position {
@@ -154,7 +178,7 @@ h1,
 }
 
 .team {
-  border-right: 2px solid #000000;
+  border-right: 2px solid black;
   min-width: 54px;
   width: 54px;
 }
@@ -184,7 +208,7 @@ tbody th.pinned:nth-of-type(2) {
 thead th.pinned:nth-of-type(3),
 tbody th.pinned:nth-of-type(3) {
   background-color: #ffffff;
-  left: 258px;
+  left: 308px;
   position: -webkit-sticky;
   position: sticky;
 }
@@ -192,7 +216,7 @@ tbody th.pinned:nth-of-type(3) {
 thead th.pinned:nth-of-type(4),
 tbody th.pinned:nth-of-type(4) {
   background-color: #ffffff;
-  left: 312px;
+  left: 362px;
   position: -webkit-sticky;
   position: sticky;
 }
@@ -205,8 +229,26 @@ tbody th.pinned {
   z-index: 1;
 }
 
-tbody tr * {
+tbody tr > * {
   outline: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+#hitters-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0 auto;
+  max-width: 960px;
+  width: calc(100% - 2rem);
+  div {
+    align-items: center;
+    display: flex;
+    img {
+      height: 1rem;
+      margin-right: 1rem;
+      width: 1rem;
+    }
+  }
 }
 
 @media (max-width: 768px) {

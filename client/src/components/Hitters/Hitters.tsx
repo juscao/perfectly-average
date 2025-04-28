@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { HittersRow } from "./HittersRow";
 import {
   fetchAllHitters,
+  fetchHitterAwards,
   fetchQualifiedHitters,
 } from "../../services/hittersApi";
 import {
@@ -16,6 +17,12 @@ import {
   HitterExtremes,
 } from "../../types/hitting.types";
 import arrow from "../../assets/images/arrow.svg";
+import crown from "../../assets/images/crown.svg";
+import one from "../../assets/images/one.svg";
+import two from "../../assets/images/two.svg";
+import bat from "../../assets/images/bat.svg";
+import star from "../../assets/images/star.svg";
+import r from "../../assets/images/r.svg";
 import "./Hitters.css";
 
 export default function Hitters() {
@@ -37,6 +44,9 @@ export default function Hitters() {
   const [extremesQualified, setExtremesQualified] = useState<
     HitterExtremes | undefined
   >();
+  const [awards, setAwards] = useState<{ name: string; playerId: number }[]>(
+    []
+  );
   const [sortMethod, setSortMethod] = useState<{
     stat: keyof HitterAverages | "name";
     filterMethod: "highToLow" | "lowToHigh" | "A-Z" | "Z-A";
@@ -71,7 +81,17 @@ export default function Hitters() {
       }
       setFetching(false);
     };
+    const getAwards = async () => {
+      if (filters.year < 2025) {
+        const response = await fetchHitterAwards(filters.year);
+        if (response) {
+          return setAwards(response);
+        }
+      }
+      setAwards([]);
+    };
     getHitters();
+    getAwards();
   }, [filters.year]);
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -152,12 +172,35 @@ export default function Hitters() {
   )
     return (
       <div className="wrapper">
-        <h1>{filters.year} Hitters</h1>
+        <h1 onClick={() => fetchHitterAwards(2022)}>{filters.year} Hitters</h1>
         <div className="description">
           <ul>
             <li>
+              A score of 100 is average. A score of 150, for example, is 50%
+              above average. Red is good and blue is bad. For SO, lower is
+              better. Higher is better for the rest.
+            </li>
+            <li>
+              R, H, 2B, 3B, HR, RBI, BB, and SO averages are calculated per 100
+              PA (e.g., on average, a{" "}
+              {filters.dataset === "qualified" && "qualified"} hitter{" "}
+              {filters.year < new Date().getFullYear() && `in ${filters.year}`}{" "}
+              {filters.year === new Date().getFullYear() ? "will have" : "had"}{" "}
+              <strong>
+                {filters.dataset === "qualified"
+                  ? averagesQualified.hits.toFixed(2)
+                  : averagesAll.hits.toFixed(2)}
+              </strong>{" "}
+              hits per 100 PA).
+            </li>
+
+            <li>
+              Only players with at least one official at-bat are included.
+              Qualified players have their name and position in CAPS.
+            </li>
+            <li>
               Out of all {filters.dataset === "qualified" && "qualified"}{" "}
-              hitters, the most perfectly average in {filters.year}{" "}
+              hitters in {filters.year}, the most perfectly average{" "}
               {filters.year === new Date().getFullYear()
                 ? "is currently"
                 : "was"}{" "}
@@ -182,40 +225,6 @@ export default function Hitters() {
                     ).averageAbsoluteDeviation.toFixed(2)}
               </strong>
               .
-            </li>
-
-            {filters.dataset === "qualified" && (
-              <li>
-                {filters.year === new Date().getFullYear()
-                  ? "Currently,"
-                  : `In ${filters.year},`}{" "}
-                {qualifiedHitters.length} of {allHitters.length} hitters{" "}
-                {filters.year === new Date().getFullYear() ? "are" : "were"}{" "}
-                qualified.
-              </li>
-            )}
-            {filters.dataset === "all" && (
-              <li>
-                Only players with at least one official at-bat are included.
-                Qualified players have their name and position in CAPS.
-              </li>
-            )}
-            <li>
-              R, H, 2B, 3B, HR, RBI, BB, and SO averages are calculated per 100
-              PA (e.g., on average, a{" "}
-              {filters.dataset === "qualified" && "qualified"} hitter{" "}
-              {filters.year < new Date().getFullYear() && `in ${filters.year}`}{" "}
-              {filters.year === new Date().getFullYear() ? "will have" : "had"}{" "}
-              <strong>
-                {filters.dataset === "qualified"
-                  ? averagesQualified.hits.toFixed(2)
-                  : averagesAll.hits.toFixed(2)}
-              </strong>{" "}
-              hits per 100 PA).
-            </li>
-            <li>
-              Red is good and blue is bad. For SO, lower is better. Higher is
-              better for the rest.
             </li>
           </ul>
         </div>
@@ -264,6 +273,7 @@ export default function Hitters() {
               onChange={handleFilterChange}
             >
               <option value="all">All</option>
+              <option value="p">P</option>
               <option value="c">C</option>
               <option value="1b">1B</option>
               <option value="2b">2B</option>
@@ -825,6 +835,9 @@ export default function Hitters() {
                           : extremesAll
                       }
                       qualified={qualifiedHittersIds.includes(hitter.player.id)}
+                      awards={awards.filter(
+                        (award) => award.playerId === hitter.player.id
+                      )}
                       i={i}
                       key={hitter.player.id}
                     />
@@ -833,6 +846,34 @@ export default function Hitters() {
               )}
           </table>
         </div>
+        {filters.year < 2025 && (
+          <div id="hitters-legend">
+            <div>
+              <img src={crown} />
+              <span>MVP</span>
+            </div>
+            <div>
+              <img src={one} />
+              <span>All-MLB First Team</span>
+            </div>
+            <div>
+              <img src={two} />
+              <span>All-MLB Second Team</span>
+            </div>
+            <div>
+              <img src={bat} />
+              <span>Silver Slugger</span>
+            </div>
+            <div>
+              <img src={star} />
+              <span>All-Star</span>
+            </div>
+            <div>
+              <img src={r} />
+              <span>Rookie of the Year</span>
+            </div>
+          </div>
+        )}
       </div>
     );
 }

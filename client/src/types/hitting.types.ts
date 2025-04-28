@@ -95,3 +95,25 @@ export type HitterExtremes = {
   baseOnBalls: { lowest: number; highest: number };
   strikeOuts: { lowest: number; highest: number };
 };
+
+export type AwardRecipient = {
+  id: string;
+  name: string;
+  date: string;
+  season: string;
+  team: {
+    id: number;
+    link: string;
+  };
+  player: {
+    id: number;
+    link: string;
+    primaryPosition: {
+      code: string;
+      name: string;
+      type: string;
+      abbreviation: string;
+    };
+    nameFirstLast: string;
+  };
+};

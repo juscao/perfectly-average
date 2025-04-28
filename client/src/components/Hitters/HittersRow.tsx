@@ -9,18 +9,26 @@ import {
   HitterExtremes,
 } from "../../types/hitting.types";
 import { TeamNameAbbreviations, TeamColors } from "../../types/teams.types";
+import crown from "../../assets/images/crown.svg";
+import one from "../../assets/images/one.svg";
+import two from "../../assets/images/two.svg";
+import bat from "../../assets/images/bat.svg";
+import star from "../../assets/images/star.svg";
+import r from "../../assets/images/r.svg";
 
 export function HittersRow({
   hitter,
   averages,
   extremes,
   qualified,
+  awards,
   i,
 }: {
   hitter: Hitter;
   averages: HitterAverages;
   extremes: HitterExtremes;
   qualified: boolean;
+  awards: { name: string; playerId: number }[];
   i: number;
 }) {
   const [normalizedStats, setNormalizedStats] = useState<HitterAverages>();
@@ -45,13 +53,38 @@ export function HittersRow({
       <tr>
         <th className="pinned rank">{i + 1}</th>
         <th className="pinned name">
-          {qualified
-            ? hitter.player.lastName.toUpperCase()
-            : hitter.player.lastName}
-          ,{" "}
-          {qualified
-            ? hitter.player.firstName.toUpperCase()
-            : hitter.player.firstName}
+          <div>
+            <span>
+              {qualified
+                ? hitter.player.lastName.toUpperCase()
+                : hitter.player.lastName}
+              ,{" "}
+              {qualified
+                ? hitter.player.firstName.toUpperCase()
+                : hitter.player.firstName}
+            </span>
+            <div className="awards">
+              {awards.some(
+                (award) => award.name === "ALMVP" || award.name === "NLMVP"
+              ) && <img src={crown} />}
+
+              {awards.some((award) => award.name === "MLBAFIRST") && (
+                <img src={one} />
+              )}
+              {awards.some((award) => award.name === "MLBSECOND") && (
+                <img src={two} />
+              )}
+              {awards.some(
+                (award) => award.name === "ALSS" || award.name === "NLSS"
+              ) && <img src={bat} className="ss" />}
+              {awards.some(
+                (award) => award.name === "ALAS" || award.name === "NLAS"
+              ) && <img src={star} className="as" />}
+              {awards.some(
+                (award) => award.name === "ALROY" || award.name === "NLROY"
+              ) && <img src={r} className="roy" />}
+            </div>
+          </div>
         </th>
         <th className="pinned position">
           {qualified
