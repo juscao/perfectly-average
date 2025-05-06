@@ -136,7 +136,7 @@ export const calculateHitterExtremes = (hitters: Hitter[]) => {
   );
 };
 
-export const calculateNormalizedStats = (
+export const calculateHitterNormalizedStats = (
   hitter: Hitter,
   averages: HitterAverages
 ) => {
@@ -168,60 +168,33 @@ export const calculateNormalizedStats = (
   const strikeOuts =
     (100 * hitter.stat.strikeOuts) / hitter.stat.plateAppearances;
   return {
-    avg:
-      avg === averages.avg
-        ? 100
-        : (100 * (avg - averages.avg)) / averages.avg + 100,
-    obp:
-      obp === averages.obp
-        ? 100
-        : (100 * (obp - averages.obp)) / averages.obp + 100,
-    slg:
-      slg === averages.slg
-        ? 100
-        : (100 * (slg - averages.slg)) / averages.slg + 100,
-    ops:
-      ops === averages.ops
-        ? 100
-        : (100 * (ops - averages.ops)) / averages.ops + 100,
-    runs:
-      runs === averages.runs
-        ? 100
-        : (100 * (runs - averages.runs)) / averages.runs + 100,
-    hits:
-      hits === averages.hits
-        ? 100
-        : (100 * (hits - averages.hits)) / averages.hits + 100,
+    avg: avg === averages.avg ? 100 : (100 * avg) / averages.avg,
+    obp: obp === averages.obp ? 100 : (100 * obp) / averages.obp,
+    slg: slg === averages.slg ? 100 : (100 * slg) / averages.slg,
+    ops: ops === averages.ops ? 100 : (100 * ops) / averages.ops,
+    runs: runs === averages.runs ? 100 : (100 * runs) / averages.runs,
+    hits: hits === averages.hits ? 100 : (100 * hits) / averages.hits,
     doubles:
-      doubles === averages.doubles
-        ? 100
-        : (100 * (doubles - averages.doubles)) / averages.doubles + 100,
+      doubles === averages.doubles ? 100 : (100 * doubles) / averages.doubles,
     triples:
-      triples === averages.triples
-        ? 100
-        : (100 * (triples - averages.triples)) / averages.triples + 100,
+      triples === averages.triples ? 100 : (100 * triples) / averages.triples,
     homeRuns:
       homeRuns === averages.homeRuns
         ? 100
-        : (100 * (homeRuns - averages.homeRuns)) / averages.homeRuns + 100,
-    rbi:
-      rbi === averages.rbi
-        ? 100
-        : (100 * (rbi - averages.rbi)) / averages.rbi + 100,
+        : (100 * homeRuns) / averages.homeRuns,
+    rbi: rbi === averages.rbi ? 100 : (100 * rbi) / averages.rbi,
     baseOnBalls:
       baseOnBalls === averages.baseOnBalls
         ? 100
-        : (100 * (baseOnBalls - averages.baseOnBalls)) / averages.baseOnBalls +
-          100,
+        : (100 * baseOnBalls) / averages.baseOnBalls,
     strikeOuts:
       strikeOuts === averages.strikeOuts
         ? 100
-        : (100 * (strikeOuts - averages.strikeOuts)) / averages.strikeOuts +
-          100,
+        : (100 * averages.strikeOuts) / strikeOuts,
   };
 };
 
-export const calculateBackgroundOpacities = (
+export const calculateHitterBackgroundOpacities = (
   hitter: Hitter,
   averages: HitterAverages,
   extremes: HitterExtremes

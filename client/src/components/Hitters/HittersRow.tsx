@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
-  calculateBackgroundOpacities,
-  calculateNormalizedStats,
+  calculateHitterBackgroundOpacities,
+  calculateHitterNormalizedStats,
 } from "../../utils/hittersCalculations";
 import {
   Hitter,
@@ -9,12 +9,7 @@ import {
   HitterExtremes,
 } from "../../types/hitting.types";
 import { TeamNameAbbreviations, TeamColors } from "../../types/teams.types";
-import crown from "../../assets/images/crown.svg";
-import one from "../../assets/images/one.svg";
-import two from "../../assets/images/two.svg";
-import bat from "../../assets/images/bat.svg";
-import star from "../../assets/images/star.svg";
-import r from "../../assets/images/r.svg";
+import { images } from "../../assets/images";
 
 export function HittersRow({
   hitter,
@@ -23,6 +18,8 @@ export function HittersRow({
   qualified,
   awards,
   i,
+  last,
+  isLastRowLoaded,
 }: {
   hitter: Hitter;
   averages: HitterAverages;
@@ -30,6 +27,8 @@ export function HittersRow({
   qualified: boolean;
   awards: { name: string; playerId: number }[];
   i: number;
+  last: boolean;
+  isLastRowLoaded: () => void;
 }) {
   const [normalizedStats, setNormalizedStats] = useState<HitterAverages>();
   const [backgroundOpacities, setBackgroundOpacities] =
@@ -37,16 +36,26 @@ export function HittersRow({
 
   useEffect(() => {
     const getNormalizedStats = () => {
-      const response = calculateNormalizedStats(hitter, averages);
+      const response = calculateHitterNormalizedStats(hitter, averages);
       setNormalizedStats(response);
     };
     const getBackgroundOpacities = () => {
-      const response = calculateBackgroundOpacities(hitter, averages, extremes);
+      const response = calculateHitterBackgroundOpacities(
+        hitter,
+        averages,
+        extremes
+      );
       setBackgroundOpacities(response);
     };
     getNormalizedStats();
     getBackgroundOpacities();
   }, [hitter, averages, extremes]);
+
+  useEffect(() => {
+    if (last) {
+      isLastRowLoaded();
+    }
+  }, [last, isLastRowLoaded]);
 
   if (normalizedStats && backgroundOpacities)
     return (
@@ -66,23 +75,23 @@ export function HittersRow({
             <div className="awards">
               {awards.some(
                 (award) => award.name === "ALMVP" || award.name === "NLMVP"
-              ) && <img src={crown} />}
+              ) && <img src={images.crown} />}
 
               {awards.some((award) => award.name === "MLBAFIRST") && (
-                <img src={one} />
+                <img src={images.one} />
               )}
               {awards.some((award) => award.name === "MLBSECOND") && (
-                <img src={two} />
+                <img src={images.two} />
               )}
               {awards.some(
                 (award) => award.name === "ALSS" || award.name === "NLSS"
-              ) && <img src={bat} className="ss" />}
+              ) && <img src={images.bat} className="ss" />}
               {awards.some(
                 (award) => award.name === "ALAS" || award.name === "NLAS"
-              ) && <img src={star} className="as" />}
+              ) && <img src={images.star} className="as" />}
               {awards.some(
                 (award) => award.name === "ALROY" || award.name === "NLROY"
-              ) && <img src={r} className="roy" />}
+              ) && <img src={images.r} className="roy" />}
             </div>
           </div>
         </th>
@@ -361,6 +370,11 @@ export function HittersRow({
               ? { backgroundColor: "#ffffff" }
               : normalizedStats.strikeOuts > 100
               ? {
+                  backgroundColor: `rgba(255, 0, 0, ${
+                    1.5 * backgroundOpacities.strikeOuts
+                  })`,
+                }
+              : {
                   backgroundColor: `rgba(0, 0, 255, ${
                     1.5 * backgroundOpacities.strikeOuts
                   })`,
@@ -369,14 +383,12 @@ export function HittersRow({
                       ? "#ffffff"
                       : "#000000",
                 }
-              : {
-                  backgroundColor: `rgba(255, 0, 0, ${
-                    1.5 * backgroundOpacities.strikeOuts
-                  })`,
-                }
           }
         >
-          {Math.round(normalizedStats.strikeOuts)}
+          {isNaN(normalizedStats.strikeOuts) ||
+          normalizedStats.strikeOuts === Infinity
+            ? "-"
+            : Math.round(normalizedStats.strikeOuts)}
         </td>
       </tr>
     );

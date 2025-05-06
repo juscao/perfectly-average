@@ -4,7 +4,8 @@ A project that utilizes the MLB Stats API to normalize baseball statistics into 
 
 ## Current Features
 
-- MLB qualified hitters with normalized statistics
+- MLB hitters with normalized statistics (1951 - current)
+- MLB pitchers with normalized statistics (1951 - current)
 
 ## Installation
 

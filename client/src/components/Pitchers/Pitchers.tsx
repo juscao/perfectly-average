@@ -1,85 +1,90 @@
 import { useState, useEffect, useMemo } from "react";
-import { HittersRow } from "./HittersRow";
+import { PitchersRow } from "./PitchersRow";
 import {
-  fetchAllHitters,
-  fetchHitterAwards,
-  fetchQualifiedHitters,
-} from "../../services/hittersApi";
+  fetchAllPitchers,
+  fetchQualifiedPitchers,
+  fetchPitcherAwards,
+} from "../../services/pitchersApi";
 import {
-  calculateHitterAverages,
-  calculateHitterExtremes,
-  sortHittersByStat,
-  calculateMostAverageHitter,
-} from "../../utils/hittersCalculations";
+  calculatePitcherAverages,
+  calculatePitcherExtremes,
+  sortPitchersByStat,
+  calculateMostAveragePitcher,
+} from "../../utils/pitchersCalculations";
 import {
-  Hitter,
-  HitterAverages,
-  HitterExtremes,
-} from "../../types/hitting.types";
+  Pitcher,
+  PitcherAverages,
+  PitcherExtremes,
+} from "../../types/pitching.types";
 import { images } from "../../assets/images";
 import "../../assets/css/tables.css";
 
-export default function Hitters() {
+export default function Pitchers() {
   const [fetching, setFetching] = useState(true);
   const [filters, setFilters] = useState({
     dataset: "qualified",
     team: "all",
     position: "all",
     year: 2025,
+    hand: "all",
   });
-  const [allHitters, setAllHitters] = useState<Hitter[]>([]);
-  const [qualifiedHitters, setQualifiedHitters] = useState<Hitter[]>([]);
-  const [qualifiedHittersIds, setQualifiedHittersIds] = useState<number[]>([]);
-  const [averagesAll, setAveragesAll] = useState<HitterAverages | undefined>();
+  const [allPitchers, setAllPitchers] = useState<Pitcher[]>([]);
+  const [qualifiedPitchers, setQualifiedPitchers] = useState<Pitcher[]>([]);
+  const [qualifiedPitchersIds, setQualifiedPitchersIds] = useState<number[]>(
+    []
+  );
+  const [averagesAll, setAveragesAll] = useState<PitcherAverages | undefined>();
   const [averagesQualified, setAveragesQualified] = useState<
-    HitterAverages | undefined
+    PitcherAverages | undefined
   >();
-  const [extremesAll, setExtremesAll] = useState<HitterExtremes | undefined>();
+  const [extremesAll, setExtremesAll] = useState<PitcherExtremes | undefined>();
   const [extremesQualified, setExtremesQualified] = useState<
-    HitterExtremes | undefined
+    PitcherExtremes | undefined
   >();
   const [awards, setAwards] = useState<{ name: string; playerId: number }[]>(
     []
   );
   const [sortMethod, setSortMethod] = useState<{
-    stat: keyof HitterAverages | "name";
+    stat: keyof PitcherAverages | "name";
     filterMethod: "highToLow" | "lowToHigh" | "A-Z" | "Z-A";
   }>({ stat: "name", filterMethod: "A-Z" });
   const [lastRowLoaded, setLastRowLoaded] = useState(false);
 
   useEffect(() => {
     setLastRowLoaded(false);
-    const getHitters = async () => {
-      const responseAll = await fetchAllHitters(filters.year);
-      const responseQualified = await fetchQualifiedHitters(filters.year);
+    const getPitchers = async () => {
+      const responseAll = await fetchAllPitchers(filters.year);
+      const responseQualified = await fetchQualifiedPitchers(filters.year);
+
       if (responseAll) {
-        const hitterAverages = calculateHitterAverages(responseAll);
-        setAveragesAll(hitterAverages);
-        const hitterExtremes = calculateHitterExtremes(responseAll);
-        setExtremesAll(hitterExtremes);
-        const sortedData: Hitter[] = [...responseAll].sort((a, b) =>
+        const pitcherAverages = calculatePitcherAverages(responseAll);
+        setAveragesAll(pitcherAverages);
+        const pitcherExtremes = calculatePitcherExtremes(responseAll);
+        setExtremesAll(pitcherExtremes);
+        const sortedData = [...responseAll].sort((a, b) =>
           a.player.lastName.localeCompare(b.player.lastName)
         );
-        setAllHitters(sortedData);
+        setAllPitchers(sortedData);
       }
+
       if (responseQualified) {
-        const hitterAverages = calculateHitterAverages(responseQualified);
-        setAveragesQualified(hitterAverages);
-        const hitterExtremes = calculateHitterExtremes(responseQualified);
-        setExtremesQualified(hitterExtremes);
-        const sortedData: Hitter[] = [...responseQualified].sort((a, b) =>
+        const pitcherAverages = calculatePitcherAverages(responseQualified);
+        setAveragesQualified(pitcherAverages);
+        const pitcherExtremes = calculatePitcherExtremes(responseQualified);
+        setExtremesQualified(pitcherExtremes);
+        const sortedData = [...responseQualified].sort((a, b) =>
           a.player.lastName.localeCompare(b.player.lastName)
         );
-        setQualifiedHitters(sortedData);
-        setQualifiedHittersIds(() =>
-          responseQualified.map((hitter: Hitter) => hitter.player.id)
+        setQualifiedPitchers(sortedData);
+        setQualifiedPitchersIds(() =>
+          responseQualified.map((pitcher: Pitcher) => pitcher.player.id)
         );
       }
-      setFetching(false);
     };
+
     const getAwards = async () => {
       if (filters.year < 2025) {
-        const response = await fetchHitterAwards(filters.year);
+        const response = await fetchPitcherAwards(filters.year);
         if (response) {
           return setAwards(response);
         }
@@ -89,7 +94,7 @@ export default function Hitters() {
 
     const fetchAll = async () => {
       setFetching(true);
-      await getHitters();
+      await getPitchers();
       await getAwards();
       setFetching(false);
     };
@@ -110,28 +115,28 @@ export default function Hitters() {
     }));
   };
 
-  const filteredAndSortedHitters = useMemo(() => {
+  const filteredAndSortedPitchers = useMemo(() => {
     let result =
-      filters.dataset === "qualified" ? qualifiedHitters : allHitters;
+      filters.dataset === "qualified" ? qualifiedPitchers : allPitchers;
 
     if (filters.team !== "all") {
       if (filters.team === "al") {
-        result = result.filter((hitter) => hitter.league.name === "AL");
+        result = result.filter((pitcher) => pitcher.league.name === "AL");
       } else if (filters.team === "nl") {
-        result = result.filter((hitter) => hitter.league.name === "NL");
+        result = result.filter((pitcher) => pitcher.league.name === "NL");
       } else {
         const teamName = filters.team
           .split("-")
           .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
           .join(" ");
-        result = result.filter((hitter) => hitter.team.name === teamName);
+        result = result.filter((pitcher) => pitcher.team.name === teamName);
       }
     }
 
     if (filters.position !== "all") {
       result = result.filter(
-        (hitter) =>
-          hitter.position.abbreviation.toLowerCase() === filters.position
+        (pitcher) =>
+          pitcher.position.abbreviation.toLowerCase() === filters.position
       );
     }
 
@@ -140,12 +145,14 @@ export default function Hitters() {
       sortMethod.filterMethod !== "A-Z" &&
       sortMethod.filterMethod !== "Z-A"
     ) {
-      const sorted = sortHittersByStat(
+      const sorted = sortPitchersByStat(
         result,
         sortMethod.stat,
         sortMethod.filterMethod
       );
-      return sorted.filter((hitter): hitter is Hitter => hitter !== undefined);
+      return sorted.filter(
+        (pitcher): pitcher is Pitcher => pitcher !== undefined
+      );
     } else if (
       sortMethod.stat === "name" &&
       sortMethod.filterMethod === "A-Z"
@@ -163,7 +170,7 @@ export default function Hitters() {
     }
 
     return result;
-  }, [filters, sortMethod, allHitters, qualifiedHitters]);
+  }, [filters, sortMethod, allPitchers, qualifiedPitchers]);
 
   const isLastRowLoaded = () => {
     setLastRowLoaded(true);
@@ -180,62 +187,62 @@ export default function Hitters() {
   )
     return (
       <div className="wrapper">
-        <h1>{filters.year} Hitters</h1>
+        <h1>{filters.year} Pitchers</h1>
         <div className="description">
           <ul>
             <li>
               A score of 100 is average. Red is good and blue is bad. If the
-              average league SLG is .400 and a player is slugging .600, their
-              score would be 150 (50% above average). Therefore, a player
-              slugging .200 would have a score of 50 (50% below average). A
-              score of 150 for strikeouts means a hitter strikes out 50% less
-              than league average.
+              league ERA is 3.50 and a player's ERA is 1.75, their score would
+              be 200 (100% above average). Therefore, a player with an ERA of
+              7.00 would have a score of 50 (50% below average).
             </li>
             <li>
-              R, H, 2B, 3B, HR, RBI, BB, and SO averages are calculated per 100
-              PA (e.g., on average, a{" "}
-              {filters.dataset === "qualified" && "qualified"} hitter{" "}
-              {filters.year < new Date().getFullYear() && `in ${filters.year}`}{" "}
-              {filters.year === new Date().getFullYear() ? "will have" : "had"}{" "}
-              <strong>
-                {filters.dataset === "qualified"
-                  ? averagesQualified.hits.toFixed(2)
-                  : averagesAll.hits.toFixed(2)}
-              </strong>{" "}
-              hits per 100 PA).
-            </li>
-
-            <li>
-              Only players with at least one official at-bat are included.
-              Qualified players have their name and position in CAPS.
+              To minimize division by 0, only players with at least 0.1 IP, 1
+              air out, 1 BB, and 1 thrown ball are included. Note that prior to
+              1974, ground outs, air outs, strikes, and number of pitches are
+              not included in the API, so there are no calculations for those
+              years. Qualified players have their names and positions in CAPS.
             </li>
             <li>
               Out of all {filters.dataset === "qualified" && "qualified"}{" "}
-              hitters in {filters.year}, the most perfectly average{" "}
+              pitchers in {filters.year}, the most perfectly average{" "}
               {filters.year === new Date().getFullYear()
                 ? "is currently"
                 : "was"}{" "}
               <strong>
                 {filters.dataset === "qualified"
-                  ? calculateMostAverageHitter(
-                      qualifiedHitters,
-                      averagesQualified
+                  ? calculateMostAveragePitcher(
+                      qualifiedPitchers,
+                      averagesQualified,
+                      filters.year,
+                      filters.dataset
                     ).name
-                  : calculateMostAverageHitter(allHitters, averagesAll).name}
+                  : calculateMostAveragePitcher(
+                      allPitchers,
+                      averagesAll,
+                      filters.year,
+                      filters.dataset
+                    ).name}
               </strong>{" "}
               with an average absolute deviation of{" "}
               <strong>
                 {filters.dataset === "qualified"
-                  ? calculateMostAverageHitter(
-                      qualifiedHitters,
-                      averagesQualified
+                  ? calculateMostAveragePitcher(
+                      qualifiedPitchers,
+                      averagesQualified,
+                      filters.year,
+                      filters.dataset
                     ).averageAbsoluteDeviation.toFixed(2)
-                  : calculateMostAverageHitter(
-                      allHitters,
-                      averagesAll
+                  : calculateMostAveragePitcher(
+                      allPitchers,
+                      averagesAll,
+                      filters.year,
+                      filters.dataset
                     ).averageAbsoluteDeviation.toFixed(2)}
               </strong>
-              .
+              .{" "}
+              {filters.dataset === "all" &&
+                "IP/G is not included in this calculation."}
             </li>
           </ul>
         </div>
@@ -253,6 +260,19 @@ export default function Hitters() {
             </select>
           </div>
           <div>
+            <label htmlFor="year">Hand:</label>
+            <select
+              name="hand"
+              id="hand"
+              value={filters.hand}
+              onChange={handleFilterChange}
+            >
+              <option value="all">All</option>
+              <option value="L">Left</option>
+              <option value="R">Right</option>
+            </select>
+          </div>
+          <div>
             <label htmlFor="dataset">Team:</label>
             <select
               name="team"
@@ -263,7 +283,7 @@ export default function Hitters() {
               <option value="all">All</option>
               <option value="al">AL</option>
               <option value="nl">NL</option>
-              {[...new Set(allHitters.map((hitter) => hitter.team.name))]
+              {[...new Set(allPitchers.map((pitcher) => pitcher.team.name))]
                 .sort((a, b) => a.localeCompare(b))
                 .map((teamName) => (
                   <option
@@ -273,28 +293,6 @@ export default function Hitters() {
                     {teamName}
                   </option>
                 ))}
-            </select>
-          </div>
-          <div>
-            <label htmlFor="position">Position:</label>
-            <select
-              name="position"
-              id="position"
-              value={filters.position}
-              onChange={handleFilterChange}
-            >
-              <option value="all">All</option>
-              <option value="p">P</option>
-              <option value="c">C</option>
-              <option value="1b">1B</option>
-              <option value="2b">2B</option>
-              <option value="3b">3B</option>
-              <option value="ss">SS</option>
-              <option value="lf">LF</option>
-              <option value="cf">CF</option>
-              <option value="rf">RF</option>
-              <option value="dh">DH</option>
-              <option value="x">X</option>
             </select>
           </div>
           <div>
@@ -319,13 +317,13 @@ export default function Hitters() {
           <div
             id="placeholder"
             style={{
-              height: `calc(${filteredAndSortedHitters.length * 18} + 36)px`,
+              height: `calc(${filteredAndSortedPitchers.length * 18} + 36)px`,
               maxHeight: "640px",
             }}
           ></div>
         )}
         <div
-          id="hitting-table-container"
+          id="pitching-table-container"
           style={{
             opacity: lastRowLoaded ? 1 : 0,
             transition: "opacity 1s ease-in-out",
@@ -370,11 +368,77 @@ export default function Hitters() {
                     )}
                   </button>
                 </th>
-                <th scope="col" className="pinned double-pinned position">
+                <th scope="col" className="pinned double-pinned pos">
                   Pos
                 </th>
                 <th scope="col" className="pinned double-pinned team">
                   Team
+                </th>
+                <th scope="col" className="pinned stat era">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      return sortMethod.stat === "era"
+                        ? sortMethod.filterMethod === "highToLow"
+                          ? setSortMethod((prev) => ({
+                              ...prev,
+                              filterMethod: "lowToHigh",
+                            }))
+                          : setSortMethod((prev) => ({
+                              ...prev,
+                              filterMethod: "highToLow",
+                            }))
+                        : setSortMethod(() => ({
+                            stat: "era",
+                            filterMethod: "highToLow",
+                          }));
+                    }}
+                  >
+                    {sortMethod.stat === "era" && (
+                      <img
+                        src={images.arrow}
+                        style={
+                          sortMethod.filterMethod === "highToLow"
+                            ? { transform: "rotate(180deg)" }
+                            : {}
+                        }
+                      />
+                    )}
+                    <span>ERA</span>
+                  </button>
+                </th>
+                <th scope="col" className="pinned stat whip">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      return sortMethod.stat === "whip"
+                        ? sortMethod.filterMethod === "highToLow"
+                          ? setSortMethod((prev) => ({
+                              ...prev,
+                              filterMethod: "lowToHigh",
+                            }))
+                          : setSortMethod((prev) => ({
+                              ...prev,
+                              filterMethod: "highToLow",
+                            }))
+                        : setSortMethod(() => ({
+                            stat: "whip",
+                            filterMethod: "highToLow",
+                          }));
+                    }}
+                  >
+                    {sortMethod.stat === "whip" && (
+                      <img
+                        src={images.arrow}
+                        style={
+                          sortMethod.filterMethod === "highToLow"
+                            ? { transform: "rotate(180deg)" }
+                            : {}
+                        }
+                      />
+                    )}
+                    <span>WHIP</span>
+                  </button>
                 </th>
                 <th scope="col" className="pinned stat avg">
                   <button
@@ -409,11 +473,11 @@ export default function Hitters() {
                     <span>AVG</span>
                   </button>
                 </th>
-                <th scope="col" className="pinned stat obp">
+                <th scope="col" className="pinned stat ip-per-game">
                   <button
                     type="button"
                     onClick={() => {
-                      return sortMethod.stat === "obp"
+                      return sortMethod.stat === "innPerGame"
                         ? sortMethod.filterMethod === "highToLow"
                           ? setSortMethod((prev) => ({
                               ...prev,
@@ -424,12 +488,12 @@ export default function Hitters() {
                               filterMethod: "highToLow",
                             }))
                         : setSortMethod(() => ({
-                            stat: "obp",
+                            stat: "innPerGame",
                             filterMethod: "highToLow",
                           }));
                     }}
                   >
-                    {sortMethod.stat === "obp" && (
+                    {sortMethod.stat === "innPerGame" && (
                       <img
                         src={images.arrow}
                         style={
@@ -439,14 +503,14 @@ export default function Hitters() {
                         }
                       />
                     )}
-                    <span>OBP</span>
+                    <span>IP/G</span>
                   </button>
                 </th>
-                <th scope="col" className="pinned stat slg">
+                <th scope="col" className="pinned stat k-per-9">
                   <button
                     type="button"
                     onClick={() => {
-                      return sortMethod.stat === "slg"
+                      return sortMethod.stat === "strikeOutsPer9Inn"
                         ? sortMethod.filterMethod === "highToLow"
                           ? setSortMethod((prev) => ({
                               ...prev,
@@ -457,12 +521,12 @@ export default function Hitters() {
                               filterMethod: "highToLow",
                             }))
                         : setSortMethod(() => ({
-                            stat: "slg",
+                            stat: "strikeOutsPer9Inn",
                             filterMethod: "highToLow",
                           }));
                     }}
                   >
-                    {sortMethod.stat === "slg" && (
+                    {sortMethod.stat === "strikeOutsPer9Inn" && (
                       <img
                         src={images.arrow}
                         style={
@@ -472,14 +536,14 @@ export default function Hitters() {
                         }
                       />
                     )}
-                    <span>SLG</span>
+                    <span>K/9</span>
                   </button>
                 </th>
-                <th scope="col" className="pinned stat ops">
+                <th scope="col" className="pinned stat bb-per-9">
                   <button
                     type="button"
                     onClick={() => {
-                      return sortMethod.stat === "ops"
+                      return sortMethod.stat === "walksPer9Inn"
                         ? sortMethod.filterMethod === "highToLow"
                           ? setSortMethod((prev) => ({
                               ...prev,
@@ -490,12 +554,12 @@ export default function Hitters() {
                               filterMethod: "highToLow",
                             }))
                         : setSortMethod(() => ({
-                            stat: "ops",
+                            stat: "walksPer9Inn",
                             filterMethod: "highToLow",
                           }));
                     }}
                   >
-                    {sortMethod.stat === "ops" && (
+                    {sortMethod.stat === "walksPer9Inn" && (
                       <img
                         src={images.arrow}
                         style={
@@ -505,14 +569,14 @@ export default function Hitters() {
                         }
                       />
                     )}
-                    <span>OPS</span>
+                    <span>BB/9</span>
                   </button>
                 </th>
-                <th scope="col" className="pinned stat runs">
+                <th scope="col" className="pinned stat h-per-9">
                   <button
                     type="button"
                     onClick={() => {
-                      return sortMethod.stat === "runs"
+                      return sortMethod.stat === "hitsPer9Inn"
                         ? sortMethod.filterMethod === "highToLow"
                           ? setSortMethod((prev) => ({
                               ...prev,
@@ -523,12 +587,12 @@ export default function Hitters() {
                               filterMethod: "highToLow",
                             }))
                         : setSortMethod(() => ({
-                            stat: "runs",
+                            stat: "hitsPer9Inn",
                             filterMethod: "highToLow",
                           }));
                     }}
                   >
-                    {sortMethod.stat === "runs" && (
+                    {sortMethod.stat === "hitsPer9Inn" && (
                       <img
                         src={images.arrow}
                         style={
@@ -538,14 +602,14 @@ export default function Hitters() {
                         }
                       />
                     )}
-                    <span>R</span>
+                    <span>H/9</span>
                   </button>
                 </th>
-                <th scope="col" className="pinned stat hits">
+                <th scope="col" className="pinned stat hr-per-9">
                   <button
                     type="button"
                     onClick={() => {
-                      return sortMethod.stat === "hits"
+                      return sortMethod.stat === "homeRunsPer9"
                         ? sortMethod.filterMethod === "highToLow"
                           ? setSortMethod((prev) => ({
                               ...prev,
@@ -556,12 +620,12 @@ export default function Hitters() {
                               filterMethod: "highToLow",
                             }))
                         : setSortMethod(() => ({
-                            stat: "hits",
+                            stat: "homeRunsPer9",
                             filterMethod: "highToLow",
                           }));
                     }}
                   >
-                    {sortMethod.stat === "hits" && (
+                    {sortMethod.stat === "homeRunsPer9" && (
                       <img
                         src={images.arrow}
                         style={
@@ -571,14 +635,14 @@ export default function Hitters() {
                         }
                       />
                     )}
-                    <span>H</span>
+                    <span>HR/9</span>
                   </button>
                 </th>
-                <th scope="col" className="pinned stat doubles">
+                <th scope="col" className="pinned stat k-bb-ratio">
                   <button
                     type="button"
                     onClick={() => {
-                      return sortMethod.stat === "doubles"
+                      return sortMethod.stat === "strikeoutWalkRatio"
                         ? sortMethod.filterMethod === "highToLow"
                           ? setSortMethod((prev) => ({
                               ...prev,
@@ -589,12 +653,12 @@ export default function Hitters() {
                               filterMethod: "highToLow",
                             }))
                         : setSortMethod(() => ({
-                            stat: "doubles",
+                            stat: "strikeoutWalkRatio",
                             filterMethod: "highToLow",
                           }));
                     }}
                   >
-                    {sortMethod.stat === "doubles" && (
+                    {sortMethod.stat === "strikeoutWalkRatio" && (
                       <img
                         src={images.arrow}
                         style={
@@ -604,14 +668,14 @@ export default function Hitters() {
                         }
                       />
                     )}
-                    <span>2B</span>
+                    <span>K/BB</span>
                   </button>
                 </th>
-                <th scope="col" className="pinned stat triples">
+                <th scope="col" className="pinned stat go-to-ao">
                   <button
                     type="button"
                     onClick={() => {
-                      return sortMethod.stat === "triples"
+                      return sortMethod.stat === "groundOutsToAirouts"
                         ? sortMethod.filterMethod === "highToLow"
                           ? setSortMethod((prev) => ({
                               ...prev,
@@ -622,12 +686,12 @@ export default function Hitters() {
                               filterMethod: "highToLow",
                             }))
                         : setSortMethod(() => ({
-                            stat: "triples",
+                            stat: "groundOutsToAirouts",
                             filterMethod: "highToLow",
                           }));
                     }}
                   >
-                    {sortMethod.stat === "triples" && (
+                    {sortMethod.stat === "groundOutsToAirouts" && (
                       <img
                         src={images.arrow}
                         style={
@@ -637,14 +701,14 @@ export default function Hitters() {
                         }
                       />
                     )}
-                    <span>3B</span>
+                    <span>GO/AO</span>
                   </button>
                 </th>
-                <th scope="col" className="pinned stat home-runs">
+                <th scope="col" className="pinned stat strike-ball-ratio">
                   <button
                     type="button"
                     onClick={() => {
-                      return sortMethod.stat === "homeRuns"
+                      return sortMethod.stat === "strikeBallRatio"
                         ? sortMethod.filterMethod === "highToLow"
                           ? setSortMethod((prev) => ({
                               ...prev,
@@ -655,12 +719,12 @@ export default function Hitters() {
                               filterMethod: "highToLow",
                             }))
                         : setSortMethod(() => ({
-                            stat: "homeRuns",
+                            stat: "strikeBallRatio",
                             filterMethod: "highToLow",
                           }));
                     }}
                   >
-                    {sortMethod.stat === "homeRuns" && (
+                    {sortMethod.stat === "strikeBallRatio" && (
                       <img
                         src={images.arrow}
                         style={
@@ -670,14 +734,14 @@ export default function Hitters() {
                         }
                       />
                     )}
-                    <span>HR</span>
+                    <span>S/B</span>
                   </button>
                 </th>
-                <th scope="col" className="pinned stat rbi">
+                <th scope="col" className="pinned stat pitches-per-9">
                   <button
                     type="button"
                     onClick={() => {
-                      return sortMethod.stat === "rbi"
+                      return sortMethod.stat === "pitchesPer9Inn"
                         ? sortMethod.filterMethod === "highToLow"
                           ? setSortMethod((prev) => ({
                               ...prev,
@@ -688,12 +752,12 @@ export default function Hitters() {
                               filterMethod: "highToLow",
                             }))
                         : setSortMethod(() => ({
-                            stat: "rbi",
+                            stat: "pitchesPer9Inn",
                             filterMethod: "highToLow",
                           }));
                     }}
                   >
-                    {sortMethod.stat === "rbi" && (
+                    {sortMethod.stat === "pitchesPer9Inn" && (
                       <img
                         src={images.arrow}
                         style={
@@ -703,73 +767,7 @@ export default function Hitters() {
                         }
                       />
                     )}
-                    <span>RBI</span>
-                  </button>
-                </th>
-                <th scope="col" className="pinned stat base-on-balls">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      return sortMethod.stat === "baseOnBalls"
-                        ? sortMethod.filterMethod === "highToLow"
-                          ? setSortMethod((prev) => ({
-                              ...prev,
-                              filterMethod: "lowToHigh",
-                            }))
-                          : setSortMethod((prev) => ({
-                              ...prev,
-                              filterMethod: "highToLow",
-                            }))
-                        : setSortMethod(() => ({
-                            stat: "baseOnBalls",
-                            filterMethod: "highToLow",
-                          }));
-                    }}
-                  >
-                    {sortMethod.stat === "baseOnBalls" && (
-                      <img
-                        src={images.arrow}
-                        style={
-                          sortMethod.filterMethod === "highToLow"
-                            ? { transform: "rotate(180deg)" }
-                            : {}
-                        }
-                      />
-                    )}
-                    <span>BB</span>
-                  </button>
-                </th>
-                <th scope="col" className="pinned stat strikeouts">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      return sortMethod.stat === "strikeOuts"
-                        ? sortMethod.filterMethod === "highToLow"
-                          ? setSortMethod((prev) => ({
-                              ...prev,
-                              filterMethod: "lowToHigh",
-                            }))
-                          : setSortMethod((prev) => ({
-                              ...prev,
-                              filterMethod: "highToLow",
-                            }))
-                        : setSortMethod(() => ({
-                            stat: "strikeOuts",
-                            filterMethod: "lowToHigh",
-                          }));
-                    }}
-                  >
-                    {sortMethod.stat === "strikeOuts" && (
-                      <img
-                        src={images.arrow}
-                        style={
-                          sortMethod.filterMethod === "lowToHigh"
-                            ? { transform: "rotate(180deg)" }
-                            : {}
-                        }
-                      />
-                    )}
-                    <span>SO</span>
+                    <span>P/9</span>
                   </button>
                 </th>
               </tr>
@@ -782,74 +780,92 @@ export default function Hitters() {
                 <th scope="col" className="pinned double-pinned team">
                   MLB
                 </th>
+                <th scope="col" className="pinned stat string era">
+                  {filters.dataset === "qualified"
+                    ? averagesQualified.era.toFixed(2)
+                    : averagesAll.era.toFixed(2)}
+                </th>
+                <th scope="col" className="pinned stat string whip">
+                  {filters.dataset === "qualified"
+                    ? averagesQualified.whip.toFixed(2)
+                    : averagesAll.whip.toFixed(2)}
+                </th>
                 <th scope="col" className="pinned stat string avg">
                   {filters.dataset === "qualified"
                     ? averagesQualified.avg.toFixed(3).replace(/^0\./, ".")
                     : averagesAll.avg.toFixed(3).replace(/^0\./, ".")}
                 </th>
-                <th scope="col" className="pinned stat string obp">
+                <th scope="col" className="pinned stat string ip-per-game">
                   {filters.dataset === "qualified"
-                    ? averagesQualified.obp.toFixed(3).replace(/^0\./, ".")
-                    : averagesAll.obp.toFixed(3).replace(/^0\./, ".")}
+                    ? averagesQualified.innPerGame
+                        .toFixed(2)
+                        .replace(/^0\./, ".")
+                    : averagesAll.innPerGame.toFixed(2).replace(/^0\./, ".")}
                 </th>
-                <th scope="col" className="pinned stat string slg">
+                <th scope="col" className="pinned stat number k-per-9">
                   {filters.dataset === "qualified"
-                    ? averagesQualified.slg.toFixed(3).replace(/^0\./, ".")
-                    : averagesAll.slg.toFixed(3).replace(/^0\./, ".")}
+                    ? averagesQualified.strikeOutsPer9Inn.toFixed(2)
+                    : averagesAll.strikeOutsPer9Inn.toFixed(2)}
                 </th>
-                <th scope="col" className="pinned stat string ops">
+                <th scope="col" className="pinned stat number bb-per-9">
                   {filters.dataset === "qualified"
-                    ? averagesQualified.ops.toFixed(3).replace(/^0\./, ".")
-                    : averagesAll.ops.toFixed(3).replace(/^0\./, ".")}
+                    ? averagesQualified.walksPer9Inn.toFixed(2)
+                    : averagesAll.walksPer9Inn.toFixed(2)}
                 </th>
-                <th scope="col" className="pinned stat number runs">
+                <th scope="col" className="pinned stat number h-per-9">
                   {filters.dataset === "qualified"
-                    ? averagesQualified.runs.toFixed(2)
-                    : averagesAll.runs.toFixed(2)}
+                    ? averagesQualified.hitsPer9Inn.toFixed(2)
+                    : averagesAll.hitsPer9Inn.toFixed(2)}
                 </th>
-                <th scope="col" className="pinned stat number hits">
+                <th scope="col" className="pinned stat number hr-per-9">
                   {filters.dataset === "qualified"
-                    ? averagesQualified.hits.toFixed(2)
-                    : averagesAll.hits.toFixed(2)}
+                    ? averagesQualified.homeRunsPer9.toFixed(2)
+                    : averagesAll.homeRunsPer9.toFixed(2)}
                 </th>
-                <th scope="col" className="pinned stat number doubles">
+                <th scope="col" className="pinned stat number k-bb-ratio">
                   {filters.dataset === "qualified"
-                    ? averagesQualified.doubles.toFixed(2)
-                    : averagesAll.doubles.toFixed(2)}
+                    ? averagesQualified.strikeoutWalkRatio.toFixed(2)
+                    : averagesAll.strikeoutWalkRatio.toFixed(2)}
                 </th>
-                <th scope="col" className="pinned stat number triples">
+                <th scope="col" className="pinned stat number go-to-ao">
                   {filters.dataset === "qualified"
-                    ? averagesQualified.triples.toFixed(2)
-                    : averagesAll.triples.toFixed(2)}
+                    ? filters.year > 1973
+                      ? averagesQualified.groundOutsToAirouts.toFixed(2)
+                      : "-"
+                    : filters.year > 1973
+                    ? averagesAll.groundOutsToAirouts.toFixed(2)
+                    : "-"}
                 </th>
-                <th scope="col" className="pinned stat number home-runs">
+                <th
+                  scope="col"
+                  className="pinned stat number strike-ball-ratio"
+                >
                   {filters.dataset === "qualified"
-                    ? averagesQualified.homeRuns.toFixed(2)
-                    : averagesAll.homeRuns.toFixed(2)}
+                    ? filters.year > 1973
+                      ? averagesQualified.strikeBallRatio.toFixed(2)
+                      : "-"
+                    : filters.year > 1973
+                    ? averagesAll.strikeBallRatio.toFixed(2)
+                    : "-"}
                 </th>
-                <th scope="col" className="pinned stat number rbi">
+                <th scope="col" className="pinned stat number pitches-per-9">
                   {filters.dataset === "qualified"
-                    ? averagesQualified.rbi.toFixed(2)
-                    : averagesAll.rbi.toFixed(2)}
-                </th>
-                <th scope="col" className="pinned stat number base-on-balls">
-                  {filters.dataset === "qualified"
-                    ? averagesQualified.baseOnBalls.toFixed(2)
-                    : averagesAll.baseOnBalls.toFixed(2)}
-                </th>
-                <th scope="col" className="pinned stat number strikeouts">
-                  {filters.dataset === "qualified"
-                    ? averagesQualified.strikeOuts.toFixed(2)
-                    : averagesAll.strikeOuts.toFixed(2)}
+                    ? filters.year > 1973
+                      ? averagesQualified.pitchesPer9Inn.toFixed(2)
+                      : "-"
+                    : filters.year > 1973
+                    ? averagesAll.pitchesPer9Inn.toFixed(2)
+                    : "-"}
                 </th>
               </tr>
             </thead>
-            {filteredAndSortedHitters &&
-              filteredAndSortedHitters.length > 0 && (
+            {filteredAndSortedPitchers &&
+              filteredAndSortedPitchers.length > 0 && (
                 <tbody>
-                  {filteredAndSortedHitters.map((hitter, i) => (
-                    <HittersRow
-                      hitter={hitter}
+                  {filteredAndSortedPitchers.map((pitcher, i) => (
+                    <PitchersRow
+                      pitcher={pitcher}
+                      handFilter={filters.hand}
                       averages={
                         filters.dataset === "qualified"
                           ? averagesQualified
@@ -860,13 +876,15 @@ export default function Hitters() {
                           ? extremesQualified
                           : extremesAll
                       }
-                      qualified={qualifiedHittersIds.includes(hitter.player.id)}
+                      qualified={qualifiedPitchersIds.includes(
+                        pitcher.player.id
+                      )}
                       awards={awards.filter(
-                        (award) => award.playerId === hitter.player.id
+                        (award) => award.playerId === pitcher.player.id
                       )}
                       i={i}
-                      key={hitter.player.id}
-                      last={i === filteredAndSortedHitters.length - 1}
+                      key={pitcher.player.id}
+                      last={i === filteredAndSortedPitchers.length - 1}
                       isLastRowLoaded={isLastRowLoaded}
                     />
                   ))}
@@ -875,7 +893,7 @@ export default function Hitters() {
           </table>
         </div>
         {filters.year < 2025 && (
-          <div id="hitters-legend">
+          <div id="pitchers-legend">
             <div>
               <img src={images.crown} />
               <span>MVP</span>
@@ -889,8 +907,8 @@ export default function Hitters() {
               <span>All-MLB Second Team</span>
             </div>
             <div>
-              <img src={images.bat} />
-              <span>Silver Slugger</span>
+              <img src={images.ball} />
+              <span>Cy Young</span>
             </div>
             <div>
               <img src={images.star} />
